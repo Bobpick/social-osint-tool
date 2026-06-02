@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+
+import requests
+import re
+import os
+import json
+import time
+from datetime import datetime
+
+os.system("clear")
+
+print("\033[1;36m")
+os.system('toilet -f future "TikTok"')
+
+print("""
+╔══════════════════════════════╗
+║       TIKTOK OSINT TOOL      ║
+╚══════════════════════════════╝
+
+[•] By erick.zz76
+[•] Use com responsabilidade
+""")
+
+user = input("\nDigite o @: ").strip().replace("@", "")
+
+if not user:
+<<<<<<< HEAD
+    print("Usuário vazio.")
+    exit()
+
+print("\nBuscando perfil...")
+=======
+    print("\n❌ Erro: Você deve digitar um usuário!")
+    exit()
+
+print("Buscando perfil...")
+>>>>>>> 6961c0a (update OSINT tool)
+time.sleep(1)
+
+url = f"https://www.tiktok.com/@{user}"
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
+
+try:
+    r = requests.get(url, headers=headers, timeout=10)
+except requests.exceptions.RequestException as e:
+    print("\nErro de conexão:", e)
+    exit()
+
+if r.status_code != 200:
+    print("\nUsuário não encontrado ou bloqueado.")
+    exit()
+
+texto = r.text
+
+def pegar(regex):
+    match = re.search(regex, texto)
+    return match.group(1) if match else "Não encontrado"
+
+def safe_int(valor):
+    try:
+        return int(valor)
+    except:
+        return valor
+
+nickname = pegar(r'"nickname":"(.*?)"')
+bio = pegar(r'"signature":"(.*?)"').replace("\\n", "\n")
+
+seguidores = safe_int(pegar(r'"followerCount":(.*?),'))
+seguindo = safe_int(pegar(r'"followingCount":(.*?),'))
+curtidas = safe_int(pegar(r'"heartCount":(.*?),'))
+videos = safe_int(pegar(r'"videoCount":(.*?),'))
+verificado = pegar(r'"verified":(true|false)')
+
+dados = {
+    "user": user,
+    "url": url,
+    "nickname": nickname,
+    "bio": bio,
+    "seguidores": seguidores,
+    "seguindo": seguindo,
+    "curtidas": curtidas,
+    "videos": videos,
+    "verificado": verificado,
+    "timestamp": str(datetime.now())
+}
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━")
+print("📌 PERFIL ENCONTRADO")
+print("━━━━━━━━━━━━━━━━━━━━━━")
+
+print(f"\nURL: {url}")
+print(f"Nickname: {nickname}")
+print(f"Bio: {bio}")
+
+if bio and "insta" in bio.lower():
+    print("\n📸 Possível Instagram encontrado na bio!")
+
+print(f"\nSeguidores: {seguidores}")
+print(f"Seguindo: {seguindo}")
+print(f"Curtidas: {curtidas}")
+print(f"Vídeos: {videos}")
+print(f"Verificado: {verificado}")
+
+print("\n━━━━━━━━━━━━━━━━━━━━━━")
+print("📦 JSON EXPORT")
+
+print(json.dumps(dados, indent=4, ensure_ascii=False))
+
+# salvar opcional
+with open(f"{user}_osint.json", "w", encoding="utf-8") as f:
+    json.dump(dados, f, indent=4, ensure_ascii=False)
+
+print(f"\n💾 Dados salvos em {user}_osint.json")
+
+with open("osint_logs.txt", "a", encoding="utf-8") as f:
+    f.write("\n━━━━━━━━━━━━━━━━━━━━━━\n")
+    f.write(f"USER: {user}\n")
+    f.write(f"TIME: {datetime.now()}\n")
+    f.write(f"URL: {url}\n")
+    f.write(f"NICKNAME: {nickname}\n")
+    f.write(f"BIO: {bio}\n")
+    f.write(f"SEGUIDORES: {seguidores}\n")
+    f.write(f"SEGUINDO: {seguindo}\n")
+    f.write(f"CURTIDAS: {curtidas}\n")
+    f.write(f"VIDEOS: {videos}\n")
+    f.write(f"VERIFICADO: {verificado}\n")
