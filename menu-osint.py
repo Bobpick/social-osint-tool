@@ -148,10 +148,23 @@ def tiktok_osint():
     return
 
 def instagram_osint():
+    limpar()
+
+    # 💜 HEADER
+    print("\033[1;35m")
+    os.system('toilet -f future "Instagram"')
+
+    print("""
+╔══════════════════════════════╗
+║     INSTAGRAM OSINT TOOL     ║
+╚══════════════════════════════╝
+""")
+
     user = input("\nDigite o @: ").strip().replace("@", "")
 
     if not user:
         print("Usuário vazio.")
+        input("\nENTER pra voltar...")
         return
 
     url = f"https://www.instagram.com/{user}/"
@@ -160,45 +173,67 @@ def instagram_osint():
         "User-Agent": "Mozilla/5.0"
     }
 
+    # 🔎 loading estilizado
     print("\n🔎 Buscando perfil...")
+    time.sleep(0.5)
+    print("📡 Consultando Instagram...")
+    time.sleep(0.8)
 
     try:
         r = requests.get(url, headers=headers, timeout=10)
     except Exception as e:
-        print("❌ Erro de conexão:", e)
-        return
-
-    if r.status_code != 200:
-        print("❌ Perfil não encontrado ou bloqueado (HTTP", r.status_code, ")")
+        print("\n❌ Erro de conexão:", e)
+        input("\nENTER pra voltar...")
         return
 
     html = r.text
 
-    # tenta pegar dados básicos do HTML
+    # 🧠 parsing básico
     title = re.search(r'<title>(.*?)</title>', html)
-    description = re.search(r'"description":"(.*?)"', html)
-
     title = title.group(1) if title else "Não encontrado"
-    description = description.group(1) if description else "Não encontrado"
+
+    bio = re.search(r'og:description" content="(.*?)"', html)
+    bio = bio.group(1) if bio else "Não encontrado"
+
+    # 💀 status inteligente
+    if "Sorry, this page isn't available" in html:
+        status = "❌ perfil inexistente"
+    elif "Login" in html and bio == "Não encontrado":
+        status = "🚫 bloqueado ou limitado"
+    else:
+        status = "✅ perfil detectado"
 
     dados = {
         "user": user,
         "url": url,
         "title": title,
-        "description": description,
+        "bio": bio,
+        "status": status,
         "timestamp": str(datetime.now())
     }
 
+    # 💜 OUTPUT
+    print("\033[1;35m")
     print("\n━━━━━━━━━━━━━━━━━━━━━━")
     print("📌 PERFIL ENCONTRADO")
     print("━━━━━━━━━━━━━━━━━━━━━━")
 
-    print("User:", user)
-    print("Title:", title)
-    print("Description:", description)
+    print("\033[0m")
+    print(f"User: {user}")
+    print(f"Status: {status}")
+    print(f"Title: {title}")
+    print(f"Bio: {bio}")
 
-    print("\n📦 JSON:")
+    # 📦 JSON bonito
+    print("\n\033[1;35m━━━━━━━━━━━━━━━━━━━━━━")
+    print("📦 JSON")
+    print("━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+
     print(json.dumps(dados, indent=4, ensure_ascii=False))
+
+    # 💾 salva log simples
+    with open("instagram_osint.json", "a", encoding="utf-8") as f:
+        f.write(json.dumps(dados, ensure_ascii=False) + "\n")
 
     input("\nENTER pra voltar...")
 
