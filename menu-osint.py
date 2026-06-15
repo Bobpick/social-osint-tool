@@ -5,11 +5,11 @@ import json
 import time
 from datetime import datetime
 
-def limpar():
+def clear_screen():
     os.system("clear")
 
-def pausa():
-    input("\nENTER pra continuar...")
+def pause():
+    input("\nPress ENTER to continue...")
 
 # --------------------
 # UTIL
@@ -24,14 +24,14 @@ def banner():
 
 def menu():
     while True:
-        limpar()
+        clear_screen()
         banner()
 
         print("[1] TikTok OSINT")
         print("[2] Instagram OSINT")
-        print("[3] Sair")
+        print("[3] Exit")
 
-        op = input("\nEscolha: ")
+        op = input("\nChoice: ")
 
         if op == "1":
             tiktok_osint()
@@ -40,18 +40,18 @@ def menu():
             instagram_osint()
 
         elif op == "3":
-            print("Saindo...")
+            print("Exiting...")
             break
 
         else:
-            print("Opção inválida")
+            print("Invalid option")
             time.sleep(1)
 
 # --------------------
-# TIKTOK OSINT (TEU CÓDIGO)
+# TIKTOK OSINT
 # --------------------
 def tiktok_osint():
-    limpar()
+    clear_screen()
 
     print("\033[1;36m")
     os.system('toilet -f future "TikTok"')
@@ -62,14 +62,14 @@ def tiktok_osint():
 ╚══════════════════════════════╝
 """)
 
-    user = input("\nDigite o @: ").strip().replace("@", "")
+    user = input("\nEnter username: ").strip().replace("@", "")
 
     if not user:
-        print("Usuário vazio.")
-        pausa()
+        print("Empty username.")
+        pause()
         return
 
-    print("\nBuscando perfil...")
+    print("\nSearching profile...")
     time.sleep(1)
 
     url = f"https://www.tiktok.com/@{user}"
@@ -81,20 +81,20 @@ def tiktok_osint():
     try:
         r = requests.get(url, headers=headers, timeout=10)
     except:
-        print("\nErro de conexão.")
-        pausa()
+        print("\nConnection error.")
+        pause()
         return
 
     if r.status_code != 200:
-        print("\nUsuário não encontrado ou bloqueado.")
-        pausa()
+        print("\nUser not found or blocked.")
+        pause()
         return
 
-    texto = r.text
+    text = r.text
 
-    def pegar(regex):
-        match = re.search(regex, texto)
-        return match.group(1) if match else "Não encontrado"
+    def extract(regex):
+        match = re.search(regex, text)
+        return match.group(1) if match else "Not found"
 
     def safe_int(v):
         try:
@@ -102,30 +102,30 @@ def tiktok_osint():
         except:
             return v
 
-    nickname = pegar(r'"nickname":"(.*?)"')
-    bio = pegar(r'"signature":"(.*?)"').replace("\\n", "\n")
+    nickname = extract(r'"nickname":"(.*?)"')
+    bio = extract(r'"signature":"(.*?)"').replace("\\n", "\n")
 
-    seguidores = safe_int(pegar(r'"followerCount":(.*?),'))
-    seguindo = safe_int(pegar(r'"followingCount":(.*?),'))
-    curtidas = safe_int(pegar(r'"heartCount":(.*?),'))
-    videos = safe_int(pegar(r'"videoCount":(.*?),'))
-    verificado = pegar(r'"verified":(true|false)')
+    followers = safe_int(extract(r'"followerCount":(.*?),'))
+    following = safe_int(extract(r'"followingCount":(.*?),'))
+    likes = safe_int(extract(r'"heartCount":(.*?),'))
+    videos = safe_int(extract(r'"videoCount":(.*?),'))
+    verified = extract(r'"verified":(true|false)')
 
-    dados = {
+    data = {
         "user": user,
         "url": url,
         "nickname": nickname,
         "bio": bio,
-        "seguidores": seguidores,
-        "seguindo": seguindo,
-        "curtidas": curtidas,
+        "followers": followers,
+        "following": following,
+        "likes": likes,
         "videos": videos,
-        "verificado": verificado,
+        "verified": verified,
         "timestamp": str(datetime.now())
     }
 
     print("\n━━━━━━━━━━━━━━━━━━━━━━")
-    print("📌 PERFIL ENCONTRADO")
+    print("📌 PROFILE FOUND")
     print("━━━━━━━━━━━━━━━━━━━━━━")
 
     print(f"\nURL: {url}")
@@ -133,24 +133,23 @@ def tiktok_osint():
     print(f"Bio: {bio}")
 
     if bio and "insta" in bio.lower():
-        print("\n📸 Possível Instagram encontrado na bio!")
+        print("\n📸 Possible Instagram found in bio!")
 
-    print(f"\nSeguidores: {seguidores}")
-    print(f"Seguindo: {seguindo}")
-    print(f"Curtidas: {curtidas}")
-    print(f"Vídeos: {videos}")
-    print(f"Verificado: {verificado}")
+    print(f"\nFollowers: {followers}")
+    print(f"Following: {following}")
+    print(f"Likes: {likes}")
+    print(f"Videos: {videos}")
+    print(f"Verified: {verified}")
 
     print("\n━━━━━━━━━━━━━━━━━━━━━━")
     print("📦 JSON EXPORT")
     
-    input("\nENTER pra voltar ao menu...")
+    input("\nPress ENTER to return to menu...")
     return
 
 def instagram_osint():
-    limpar()
+    clear_screen()
 
-    # 💜 HEADER
     print("\033[1;35m")
     os.system('toilet -f future "Instagram"')
 
@@ -160,11 +159,11 @@ def instagram_osint():
 ╚══════════════════════════════╝
 """)
 
-    user = input("\nDigite o @: ").strip().replace("@", "")
+    user = input("\nEnter username: ").strip().replace("@", "")
 
     if not user:
-        print("Usuário vazio.")
-        input("\nENTER pra voltar...")
+        print("Empty username.")
+        input("\nPress ENTER to go back...")
         return
 
     url = f"https://www.instagram.com/{user}/"
@@ -173,37 +172,34 @@ def instagram_osint():
         "User-Agent": "Mozilla/5.0"
     }
 
-    # 🔎 loading estilizado
-    print("\n🔎 Buscando perfil...")
+    print("\n🔎 Searching profile...")
     time.sleep(0.5)
-    print("📡 Consultando Instagram...")
+    print("📡 Querying Instagram...")
     time.sleep(0.8)
 
     try:
         r = requests.get(url, headers=headers, timeout=10)
     except Exception as e:
-        print("\n❌ Erro de conexão:", e)
-        input("\nENTER pra voltar...")
+        print("\n❌ Connection error:", e)
+        input("\nPress ENTER to go back...")
         return
 
     html = r.text
 
-    # 🧠 parsing básico
     title = re.search(r'<title>(.*?)</title>', html)
-    title = title.group(1) if title else "Não encontrado"
+    title = title.group(1) if title else "Not found"
 
     bio = re.search(r'og:description" content="(.*?)"', html)
-    bio = bio.group(1) if bio else "Não encontrado"
+    bio = bio.group(1) if bio else "Not found"
 
-    # 💀 status inteligente
     if "Sorry, this page isn't available" in html:
-        status = "❌ perfil inexistente"
-    elif "Login" in html and bio == "Não encontrado":
-        status = "🚫 bloqueado ou limitado"
+        status = "❌ profile does not exist"
+    elif "Login" in html and bio == "Not found":
+        status = "🚫 blocked or restricted"
     else:
-        status = "✅ perfil detectado"
+        status = "✅ profile detected"
 
-    dados = {
+    data = {
         "user": user,
         "url": url,
         "title": title,
@@ -212,10 +208,9 @@ def instagram_osint():
         "timestamp": str(datetime.now())
     }
 
-    # 💜 OUTPUT
     print("\033[1;35m")
     print("\n━━━━━━━━━━━━━━━━━━━━━━")
-    print("📌 PERFIL ENCONTRADO")
+    print("📌 PROFILE FOUND")
     print("━━━━━━━━━━━━━━━━━━━━━━")
 
     print("\033[0m")
@@ -224,18 +219,16 @@ def instagram_osint():
     print(f"Title: {title}")
     print(f"Bio: {bio}")
 
-    # 📦 JSON bonito
     print("\n\033[1;35m━━━━━━━━━━━━━━━━━━━━━━")
     print("📦 JSON")
     print("━━━━━━━━━━━━━━━━━━━━━━\033[0m")
 
-    print(json.dumps(dados, indent=4, ensure_ascii=False))
+    print(json.dumps(data, indent=4, ensure_ascii=False))
 
-    # 💾 salva log simples
     with open("instagram_osint.json", "a", encoding="utf-8") as f:
-        f.write(json.dumps(dados, ensure_ascii=False) + "\n")
+        f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
-    input("\nENTER pra voltar...")
+    input("\nPress ENTER to go back...")
 
 if __name__ == "__main__":
     menu()
